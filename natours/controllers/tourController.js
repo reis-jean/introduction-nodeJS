@@ -1,17 +1,17 @@
 
-const fs = require('fs')
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/../data/tours-simple.json`))
+const fs = require('fs');
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/../data/tours-simple.json`));
+const catchAsync = require('./../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 
 const checkID = (req, res, next, val) => {
     const id = req.params.id * 1;
     const tour = tours.find(el => el.id === id)
     if(!tour){
-        res.status(404).json({
-            status: 'fail',
-            message: 'Invalid ID'
-          
-        })
+       
+        return next(new AppError('No tour found with that ID', 404))
+        
     }
 
     next()
@@ -27,8 +27,16 @@ const checkBody = (req, res, next) =>{
     next();
 }
 
-const getAllTours = (req, res) => {
+
+
+
+const getAllTours = catchAsync(async(req, res, next) =>{
     
+    // console.log(tours)
+
+    // ao inves de fazer try e catch
+
+
     res.status(200).json({
         status : 'sucess',
         requestedAt: req.requestTime,
@@ -36,14 +44,16 @@ const getAllTours = (req, res) => {
         tours : tours
     })
     
-}
+})
 
-const getTour = (req, res)=>{
+const getTour = catchAsync(async(req, res, next) =>{
 
     console.log(req.params)
 
     const id = req.params.id * 1;
     const tour = tours.find(el => el.id === id)
+
+    
 
     res.status(200).json({
         status : 'sucess',
@@ -52,9 +62,11 @@ const getTour = (req, res)=>{
         }
       
     })
-}
+})
 
-const createTour = (req, res)=>{
+
+
+const createTour = catchAsync(async(req, res, next) =>{
 
     console.log(req.body)
     const newId = tours[tours.length-1].id + 1; 
@@ -72,9 +84,9 @@ const createTour = (req, res)=>{
             })
         }
     )   
-}
+})
 
-const updateTour = (req, res)=>{
+const updateTour = catchAsync(async(req, res, next) =>{
 
     console.log(req.params)
 
@@ -88,9 +100,9 @@ const updateTour = (req, res)=>{
         }
       
     })
-}
+})
 
-const deleteTour = (req, res)=>{
+const deleteTour = catchAsync(async(req, res, next) =>{
 
     const id = req.params.id * 1;
     const tour = tours.find(el => el.id === id)
@@ -102,7 +114,7 @@ const deleteTour = (req, res)=>{
         }
       
     })
-}
+})
 
 
 module.exports = {
